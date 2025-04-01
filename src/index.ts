@@ -1,7 +1,7 @@
-import { InvoiceParser, InvoiceData, InvoiceItem } from './invoiceParser';
+import { parseInvoice, InvoiceData, InvoiceItem } from './invoiceParser';
 
 export {
-  InvoiceParser,
+  parseInvoice,
   InvoiceData,
   InvoiceItem
 };

@@ -1,4 +1,4 @@
-import { InvoiceParser, InvoiceData } from '../invoiceParser';
+import { parseInvoice } from '../invoiceParser';
 
 // Mock the OpenAI client
 jest.mock('openai', () => {
@@ -48,12 +48,8 @@ jest.mock('openai', () => {
   });
 });
 
-describe('InvoiceParser', () => {
-  let parser: InvoiceParser;
-  
-  beforeEach(() => {
-    parser = new InvoiceParser('fake-api-key');
-  });
+describe('Invoice Parser', () => {
+  const API_KEY = 'fake-api-key';
   
   afterEach(() => {
     jest.clearAllMocks();
@@ -89,7 +85,7 @@ describe('InvoiceParser', () => {
     `;
     
     // Parse the invoice
-    const result = await parser.parseInvoice(invoiceText);
+    const result = await parseInvoice(API_KEY, invoiceText);
     
     // Verify the structure and content of the parsed data
     expect(result).toBeDefined();
@@ -121,9 +117,8 @@ describe('InvoiceParser', () => {
       };
     });
     
-    const parser = new InvoiceParser('fake-api-key');
     const invoiceText = 'Invalid invoice content';
     
-    await expect(parser.parseInvoice(invoiceText)).rejects.toThrow('No content returned from OpenAI');
+    await expect(parseInvoice(API_KEY, invoiceText)).rejects.toThrow('No content returned from OpenAI');
   });
 });

@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 
 // Define the structure for parsed invoice data
-export interface InvoiceData {
+export type InvoiceData = {
   invoiceNumber: string;
   invoiceDate: string;
   dueDate?: string;
@@ -15,68 +15,76 @@ export interface InvoiceData {
   totalAmount: number;
   currency: string;
   paymentTerms?: string;
-}
+};
 
 // Define the structure for individual line items
-export interface InvoiceItem {
+export type InvoiceItem = {
   description: string;
   quantity: number;
   unitPrice: number;
   amount: number;
-}
+};
 
-export class InvoiceParser {
-  private client: OpenAI;
+// Create an OpenAI client
+const createOpenAIClient = (apiKey: string): OpenAI => {
+  return new OpenAI({
+    apiKey,
+  });
+};
 
-  constructor(apiKey: string) {
-    this.client = new OpenAI({
-      apiKey: apiKey,
+/**
+ * Parse an invoice from its text content using OpenAI
+ * @param apiKey OpenAI API key
+ * @param invoiceText The text content of the invoice to parse
+ * @returns Structured invoice data
+ */
+export const parseInvoice = async (apiKey: string, invoiceText: string): Promise<InvoiceData> => {
+  const client = createOpenAIClient(apiKey);
+  
+  try {
+    const response = await client.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert invoice parser. Extract structured data from the provided invoice text."
+        },
+        {
+          role: "user",
+          content: invoiceText
+        }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0,
     });
-  }
 
-  /**
-   * Parse an invoice from its text content using OpenAI
-   * @param invoiceText The text content of the invoice to parse
-   * @returns Structured invoice data
-   */
-  async parseInvoice(invoiceText: string): Promise<InvoiceData> {
-    try {
-      const response = await this.client.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert invoice parser. Extract structured data from the provided invoice text."
-          },
-          {
-            role: "user",
-            content: invoiceText
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0,
-      });
-
-      // Get the response content
-      const content = response.choices[0].message.content;
-      
-      if (!content) {
-        throw new Error("No content returned from OpenAI");
-      }
-
-      // Parse the JSON response
-      const parsedInvoice = JSON.parse(content) as InvoiceData;
-      
-      // Validate the parsed data (minimal validation for example)
-      if (!parsedInvoice.invoiceNumber || !parsedInvoice.vendorName || !parsedInvoice.totalAmount) {
-        throw new Error("Invoice parsing failed: Missing required fields");
-      }
-
-      return parsedInvoice;
-    } catch (error) {
-      // We're not logging errors here so tests remain clean
-      // In a real implementation, you might want to log errors or handle them differently
-      throw error;
+    // Get the response content
+    const content = response.choices[0].message.content;
+    
+    if (!content) {
+      throw new Error("No content returned from OpenAI");
     }
+
+    // Parse the JSON response
+    const parsedInvoice = JSON.parse(content) as InvoiceData;
+    
+    // Validate the parsed data
+    return validateInvoice(parsedInvoice);
+  } catch (error) {
+    // We're not logging errors here so tests remain clean
+    // In a real implementation, you might want to log errors or handle them differently
+    throw error;
   }
-}
+};
+
+/**
+ * Validate the parsed invoice data
+ * @param invoice The invoice data to validate
+ * @returns Validated invoice data
+ */
+const validateInvoice = (invoice: InvoiceData): InvoiceData => {
+  if (!invoice.invoiceNumber || !invoice.vendorName || !invoice.totalAmount) {
+    throw new Error("Invoice parsing failed: Missing required fields");
+  }
+  return invoice;
+};
