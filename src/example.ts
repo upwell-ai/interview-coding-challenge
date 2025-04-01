@@ -1,6 +1,7 @@
 // Load environment variables from .env file
 import dotenv from 'dotenv';
-import { createOpenAIClient, parseInvoice } from './index';
+import {  parseInvoice } from './index';
+import { createOpenAIClient } from './invoiceParser';
 
 // Load environment variables at the beginning of your application
 dotenv.config();
