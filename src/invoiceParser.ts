@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 
 // Define the structure for parsed invoice data
-export interface InvoiceData {
+export type InvoiceData = {
   invoiceNumber: string;
   invoiceDate: string;
   dueDate?: string;
@@ -15,15 +15,15 @@ export interface InvoiceData {
   totalAmount: number;
   currency: string;
   paymentTerms?: string;
-}
+};
 
 // Define the structure for individual line items
-export interface InvoiceItem {
+export type InvoiceItem = {
   description: string;
   quantity: number;
   unitPrice: number;
   amount: number;
-}
+};
 
 /**
  * Create an OpenAI client instance using the API key from environment variables
@@ -89,4 +89,16 @@ export async function parseInvoice(client: OpenAI, invoiceText: string): Promise
     // In a real implementation, you might want to log errors or handle them differently
     throw error;
   }
-}
+};
+
+/**
+ * Validate the parsed invoice data
+ * @param invoice The invoice data to validate
+ * @returns Validated invoice data
+ */
+const validateInvoice = (invoice: InvoiceData): InvoiceData => {
+  if (!invoice.invoiceNumber || !invoice.vendorName || !invoice.totalAmount) {
+    throw new Error("Invoice parsing failed: Missing required fields");
+  }
+  return invoice;
+};
