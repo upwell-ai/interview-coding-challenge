@@ -49,7 +49,11 @@ cd invoice-parser-challenge
 npm install
 
 # Set up your OpenAI API key
-export OPENAI_API_KEY=your_api_key_here
+# Copy the .env.template to .env and add your API key
+cp .env.template .env
+
+# Edit the .env file to add your actual API key
+# OPENAI_API_KEY=your_api_key_here
 ```
 
 ### Running the Application
@@ -94,4 +98,4 @@ Your submission will be evaluated based on:
 
 ## Time Expectation
 
-This challenge is designed to take 2-4 hours. Focus on creating a working solution rather than perfection in all areas.
+This challenge is designed to be completed within a 45-minute interview session. Focus on a simple, functioning solution that demonstrates your understanding of TypeScript and the OpenAI API.

@@ -1,7 +1,8 @@
-import { InvoiceParser, InvoiceData, InvoiceItem } from './invoiceParser';
+import { createOpenAIClient, parseInvoice, InvoiceData, InvoiceItem } from './invoiceParser';
 
 export {
-  InvoiceParser,
+  createOpenAIClient,
+  parseInvoice,
   InvoiceData,
   InvoiceItem
 };
