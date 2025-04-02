@@ -1,7 +1,32 @@
-import { createOpenAIClient, InvoiceData } from './invoiceParser';
+import { createOpenAIClient, InvoiceData, InvoiceType } from './invoiceParser';
 import { readFileSync } from 'fs';
 import OpenAI from 'openai';
 import path from 'path';
+
+/**
+ * Document classification result
+ */
+export type DocumentClassification = {
+  documentType: InvoiceType | 'BILL_OF_LADING' | 'DELIVERY_RECEIPT' | string;
+  confidence: number;
+  metadata?: {
+    documentId?: string;
+    dateIssued?: string;
+    issuer?: string;
+    recipient?: string;
+    [key: string]: string | number | undefined;
+  };
+};
+
+/**
+ * Result of parsing multiple documents
+ */
+export type DocumentParsingResult = {
+  filePath: string;
+  classification: DocumentClassification;
+  parsedData?: InvoiceData;
+  error?: string;
+};
 
 /**
  * Parse an invoice from an image file using OpenAI's vision capabilities
@@ -105,4 +130,26 @@ function getMimeType(filePath: string): string {
     default:
       return 'application/octet-stream';
   }
+}
+
+/**
+ * Parse and classify multiple document images
+ * @param imagePaths List of paths to document images
+ * @returns Array of document parsing results with classifications
+ */
+export async function parseDocuments(imagePaths: string[]): Promise<DocumentParsingResult[]> {
+  // TODO: Implement document classification and parsing logic
+  // This function should:
+  // 1. Process each image file to determine its document type
+  // 2. Extract relevant metadata for each document
+  // 3. Optionally parse the full content for invoice-type documents
+  // 4. Handle errors gracefully without failing the entire batch
+  
+  // Create OpenAI client
+  const client = createOpenAIClient();
+  
+  // Set up for batch processing
+  const results: DocumentParsingResult[] = [];
+
+  return results;
 }
