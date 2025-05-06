@@ -34,6 +34,20 @@ export type DocumentParsingResult = {
  * @returns Structured invoice data
  */
 export async function parseInvoiceImage(imagePath: string): Promise<InvoiceData> {
+  return parseInvoiceImageBase64(null, imagePath);
+}
+
+/**
+ * Parse an invoice from a base64-encoded image using OpenAI's vision capabilities
+ * @param base64Image Base64-encoded image data
+ * @param mimeType MIME type of the image (e.g., 'image/jpeg', 'image/png')
+ * @returns Structured invoice data
+ */
+export async function parseInvoiceImageBase64(
+  base64Image: string | null,
+  imagePath?: string,
+  mimeType?: string
+): Promise<InvoiceData> {
   // Load environment variables if needed
   if (!process.env.OPENAI_API_KEY) {
     try {
@@ -47,10 +61,22 @@ export async function parseInvoiceImage(imagePath: string): Promise<InvoiceData>
   const client = createOpenAIClient();
 
   try {
-    // Read the image file and encode as base64
-    const imageBuffer = readFileSync(imagePath);
-    const base64Image = imageBuffer.toString('base64');
-    const mimeType = getMimeType(imagePath);
+    // If base64Image is not provided, read from file path
+    let imageData: string;
+    let imageType: string;
+    
+    if (!base64Image && imagePath) {
+      // Read the image file and encode as base64
+      const imageBuffer = readFileSync(imagePath);
+      imageData = imageBuffer.toString('base64');
+      imageType = getMimeType(imagePath);
+    } else if (base64Image) {
+      // Use the provided base64 image and mime type
+      imageData = base64Image;
+      imageType = mimeType || 'image/jpeg'; // Default to JPEG if not specified
+    } else {
+      throw new Error('Either base64Image or imagePath must be provided');
+    }
 
     // Call OpenAI with the image
     const response = await client.chat.completions.create({
@@ -70,7 +96,7 @@ export async function parseInvoiceImage(imagePath: string): Promise<InvoiceData>
             {
               type: "image_url",
               image_url: {
-                url: `data:${mimeType};base64,${base64Image}`
+                url: `data:${imageType};base64,${imageData}`
               }
             }
           ]
